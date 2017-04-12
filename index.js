@@ -43,4 +43,14 @@ class ReducerBuilder {
     }
 }
 exports.ReducerBuilder = ReducerBuilder;
+function merge(existing, updates) {
+    return Object.assign({}, existing, updates);
+}
+exports.merge = merge;
+;
+function mergeInto(existing, key, updates) {
+    return Object.assign({}, existing, { [key]: merge(existing[key], updates) });
+}
+exports.mergeInto = mergeInto;
+;
 //# sourceMappingURL=index.js.map
