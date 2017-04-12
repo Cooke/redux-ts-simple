@@ -65,3 +65,11 @@ export class ReducerBuilder<TState> {
         }
     }
 }
+
+export function merge<T>(existing: T, updates: Partial<T>): T {
+    return { ...<any>existing, ...<any>updates };
+};
+
+export function mergeInto<T>(existing: { [key: string]: T }, key: string, updates: Partial<T>): { [key: string]: T } {
+    return { ...<any>existing, [key]: merge(existing[key], updates) };
+};
