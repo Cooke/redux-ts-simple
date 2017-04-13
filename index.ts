@@ -20,7 +20,7 @@ export function defineAction<TActionPayload extends {}>(type: string): ActionDef
                 throw "Only object types may be used as payloads for none standard actions";
             }
 
-            return Object.assign({ type: type }, arg || {}) as any;
+            return { type: type, ...(arg || {}) } as any;
         }
     };
 }

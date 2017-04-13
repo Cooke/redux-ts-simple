@@ -1,13 +1,21 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+exports.__esModule = true;
 function defineAction(type) {
     return {
         type: type,
-        create: (arg) => {
+        create: function (arg) {
             if ((typeof arg !== 'object') && (arg !== undefined)) {
                 throw "Only object types may be used as payloads for none standard actions";
             }
-            return Object.assign({ type: type }, arg || {});
+            return __assign({ type: type }, (arg || {}));
         }
     };
 }
@@ -15,24 +23,26 @@ exports.defineAction = defineAction;
 function defineStandardAction(type) {
     return {
         type: type,
-        create: (arg) => ({ type: type, payload: arg })
+        create: function (arg) { return ({ type: type, payload: arg }); }
     };
 }
 exports.defineStandardAction = defineStandardAction;
-class ReducerBuilder {
-    constructor(initState) {
+var ReducerBuilder = (function () {
+    function ReducerBuilder(initState) {
+        var _this = this;
         this.initState = initState;
         this.handlers = {};
-        this.on = (actionDefinition, handler) => {
+        this.on = function (actionDefinition, handler) {
             // TODO check if already registered
-            this.handlers[actionDefinition.type] = handler;
-            return this;
+            _this.handlers[actionDefinition.type] = handler;
+            return _this;
         };
     }
-    build() {
-        return (state, action) => {
-            let handler = this.handlers[action.type];
-            let currentState = state || this.initState;
+    ReducerBuilder.prototype.build = function () {
+        var _this = this;
+        return function (state, action) {
+            var handler = _this.handlers[action.type];
+            var currentState = state || _this.initState;
             if (handler) {
                 return handler(currentState, action);
             }
@@ -40,17 +50,18 @@ class ReducerBuilder {
                 return currentState;
             }
         };
-    }
-}
+    };
+    return ReducerBuilder;
+}());
 exports.ReducerBuilder = ReducerBuilder;
 function merge(existing, updates) {
-    return Object.assign({}, existing, updates);
+    return __assign({}, existing, updates);
 }
 exports.merge = merge;
 ;
 function mergeInto(existing, key, updates) {
-    return Object.assign({}, existing, { [key]: merge(existing[key], updates) });
+    return __assign({}, existing, (_a = {}, _a[key] = merge(existing[key], updates), _a));
+    var _a;
 }
 exports.mergeInto = mergeInto;
 ;
-//# sourceMappingURL=index.js.map
