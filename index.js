@@ -7,26 +7,27 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-exports.__esModule = true;
 function defineAction(type) {
-    return {
-        type: type,
-        create: function (arg) {
-            if ((typeof arg !== 'object') && (arg !== undefined)) {
-                throw "Only object types may be used as payloads for none standard actions";
-            }
-            return __assign({ type: type }, (arg || {}));
+    var actionCreator = function (arg) {
+        if ((typeof arg !== 'object') && (arg !== undefined)) {
+            throw "Only object types may be used as payloads for none standard actions";
         }
+        return __assign({ type: type }, (arg || {}));
     };
+    actionCreator.type = type;
+    actionCreator.create = actionCreator;
+    return actionCreator;
 }
 exports.defineAction = defineAction;
+exports.createAction = defineAction;
 function defineStandardAction(type) {
-    return {
-        type: type,
-        create: function (arg) { return ({ type: type, payload: arg }); }
-    };
+    var actionCreator = function (arg) { return ({ type: type, payload: arg }); };
+    actionCreator.type = type;
+    actionCreator.create = actionCreator;
+    return actionCreator;
 }
 exports.defineStandardAction = defineStandardAction;
+exports.createStandardAction = defineStandardAction;
 var ReducerBuilder = (function () {
     function ReducerBuilder(initState) {
         var _this = this;
@@ -65,3 +66,4 @@ function mergeInto(existing, key, updates) {
 }
 exports.mergeInto = mergeInto;
 ;
+//# sourceMappingURL=index.js.map

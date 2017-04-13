@@ -1,11 +1,13 @@
-interface ActionDefinition<TActionPayload>  {
+interface ActionDefinition<TActionPayload> {
     type: string;
     create: (arg?: TActionPayload) => (TActionPayload & Action);
+    (arg?: TActionPayload): (TActionPayload & Action);
 }
 
-interface StandardActionDefinition<TActionPayload>  {
+interface StandardActionDefinition<TActionPayload> {
     type: string;
-    create: (arg?: TActionPayload) => {payload: TActionPayload} & Action;
+    create: (arg?: TActionPayload) => { payload: TActionPayload } & Action;
+    (arg?: TActionPayload): { payload: TActionPayload } & Action;
 }
 
 interface Action {
@@ -13,24 +15,27 @@ interface Action {
 }
 
 export function defineAction<TActionPayload extends {}>(type: string): ActionDefinition<TActionPayload> {
-    return {
-        type: type,
-        create: (arg?: TActionPayload): Action & TActionPayload => {
-            if ((typeof arg !== 'object') && (arg !== undefined)) {
-                throw "Only object types may be used as payloads for none standard actions";
-            }
-
-            return { type: type, ...(arg || {}) } as any;
+    const actionCreator: any = (arg?: TActionPayload): Action & TActionPayload => {
+        if ((typeof arg !== 'object') && (arg !== undefined)) {
+            throw "Only object types may be used as payloads for none standard actions";
         }
+
+        return { type: type, ...(arg || {}) } as any;
     };
+
+    actionCreator.type = type;
+    actionCreator.create = actionCreator;
+    return actionCreator;
 }
+export const createAction = defineAction;
 
 export function defineStandardAction<TActionPayload>(type: string): StandardActionDefinition<TActionPayload> {
-    return {
-        type: type,
-        create: (arg?: TActionPayload) => ({ type: type, payload: arg as TActionPayload })
-    };
+    const actionCreator: any = (arg?: TActionPayload) => ({ type: type, payload: arg as TActionPayload });
+    actionCreator.type = type;
+    actionCreator.create = actionCreator;
+    return actionCreator;
 }
+export const createStandardAction = defineStandardAction;
 
 interface ReducerHandler<TState, TAction> {
     (state: TState, action: TAction): TState;
@@ -38,7 +43,7 @@ interface ReducerHandler<TState, TAction> {
 
 interface RegisterReducerHandler<TState> {
     <TActionPayload>(actionClass: ActionDefinition<TActionPayload>, handler: ReducerHandler<TState, TActionPayload & Action>): ReducerBuilder<TState>;
-    <TActionPayload>(actionClass: StandardActionDefinition<TActionPayload>, handler: ReducerHandler<TState, {payload: TActionPayload} & Action>): ReducerBuilder<TState>;
+    <TActionPayload>(actionClass: StandardActionDefinition<TActionPayload>, handler: ReducerHandler<TState, { payload: TActionPayload } & Action>): ReducerBuilder<TState>;
 }
 
 export class ReducerBuilder<TState> {

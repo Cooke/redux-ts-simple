@@ -11,6 +11,13 @@ it('should create action of correct type', () => {
     expect(action.type).toBe("IncAction");
 })
 
+it('should be able to use defined action as an action creator', () => {
+    let inc = defineAction<{ inc: number }>("IncAction");
+    let action = inc({ inc: 123 });
+    expect(action.type).toBe("IncAction");
+    expect(action.inc).toBe(123);
+})
+
 it('should create action with correct payload', () => {
     let IncAction = defineAction<{ inc: number }>("IncAction");
     let action = IncAction.create({ inc: 123 });
