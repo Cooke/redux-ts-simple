@@ -1,86 +1,49 @@
-import { defineAction, ReducerBuilder, defineStandardAction } from "./index";
+import { ReducerBuilder, createAction } from "./index";
 
-it('should set type of action definition', () => {
-    let IncAction = defineAction<{ inc: number }>("IncAction");
-    expect(IncAction.type).toBe("IncAction");
+it('should set type of action creator', () => {
+    let increment = createAction<{ inc: number }>("IncAction");
+    expect(increment.type).toBe("IncAction");
 });
 
-it('should create action of correct type', () => {
-    let IncAction = defineAction<{ inc: number }>("IncAction");
-    let action = IncAction.create({ inc: 123 });
+it('should set type, payload and meta of created action', () => {
+    let inc = createAction<{ inc: number }>("IncAction");
+    let action = inc({ inc: 123 }, { data: 'metadata' });
     expect(action.type).toBe("IncAction");
-})
+    expect(action.payload.inc).toBe(123);
+    expect(action.meta).toBeDefined();
+    expect((action.meta as any).data).toBe('metadata');
+});
 
-it('should be able to use defined action as an action creator', () => {
-    let inc = defineAction<{ inc: number }>("IncAction");
-    let action = inc({ inc: 123 });
-    expect(action.type).toBe("IncAction");
-    expect(action.inc).toBe(123);
-})
-
-it('should create action with correct payload', () => {
-    let IncAction = defineAction<{ inc: number }>("IncAction");
-    let action = IncAction.create({ inc: 123 });
-    expect(action.inc).toBe(123);
-})
+it('should set error when payload is error', () => {
+    let inc = createAction<{ inc: number } | Error>("IncAction");
+    let action = inc(new Error('Something bad'));
+    expect(action.error).toBeTruthy();
+});
 
 it('should be able to create action without payload', () => {
-    let IncAction = defineAction("IncAction");
-    let action = IncAction.create();
+    let increment = createAction("IncAction");
+    let action = increment();
     expect(action.type).toBe("IncAction");
+    expect(action.payload).toBeUndefined();
 })
 
-it('should not be able to create action with simple payload', () => {
-    let IncAction = defineAction<number>("IncAction");
-    expect(() => IncAction.create(123)).toThrow();
-})
+it('should be able to reduce actions', () => {
+    let increment = createAction<{ inc: number }>("IncAction");
+    let decrement = createAction<number>("DecAction");
+    let reset = createAction("ResetAction");
 
-it('should be able to reduce action', () => {
-    let IncAction = defineAction<{ inc: number }>("IncAction");
     const reducer = new ReducerBuilder({ counter: 1 })
-        .on(IncAction, (state, action) => ({ counter: state.counter + action.inc }))
+        .on(increment, (state, action) => ({ counter: state.counter + action.payload.inc }))
+        .on(decrement, (state, action) => ({ counter: state.counter - action.payload }))
+        .on(reset, () => ({ counter: 0 }))
         .build();
 
-    let newState = reducer(undefined, IncAction.create({ inc: 123 }));
+    let state = reducer(undefined, increment({ inc: 123 }));
+    expect(state.counter).toBe(124);
 
-    expect(newState.counter).toBe(124);
+    state = reducer(state, decrement(4));
+    expect(state.counter).toBe(120);
+
+    state = reducer(state, reset());
+    expect(state.counter).toBe(0);
 })
-
-it('should set type of standard action definition', () => {
-    let IncAction = defineStandardAction<{ inc: number }>("IncAction");
-    expect(IncAction.type).toBe("IncAction");
-});
-
-it('should create standard action of correct type', () => {
-    let IncAction = defineStandardAction<{ inc: number }>("IncAction");
-    let action = IncAction.create({ inc: 123 });
-    expect(action.type).toBe("IncAction");
-})
-
-it('should create action with correct payload', () => {
-    let IncAction = defineStandardAction<{ inc: number }>("IncAction");
-    let action = IncAction.create({ inc: 123 });
-    expect(action.payload.inc).toBe(123);
-})
-
-it("should create action with simple payload", () => {
-    let IncAction = defineStandardAction<number>("IncAction");
-    expect(IncAction.create(123).payload).toBe(123);
-})
-
-it('should be able to create standard action without payload', () => {
-    let IncAction = defineStandardAction("IncAction");
-    let action = IncAction.create();
-    expect(action.type).toBe("IncAction");
-})
-
-it("should be able to reduce standard action", () => {
-    let IncAction = defineStandardAction<{ inc: number }>("IncAction");
-    const reducer = new ReducerBuilder({ counter: 1 })
-        .on(IncAction, (state, action) => ({ counter: state.counter + action.payload.inc }))
-        .build();
-
-    let newState = reducer(undefined, IncAction.create({ inc: 123 }));
-
-    expect(newState.counter).toBe(124);
-});
