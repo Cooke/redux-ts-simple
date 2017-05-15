@@ -36,6 +36,7 @@ interface RegisterReducerHandler<TState> {
 
 export class ReducerBuilder<TState> {
     private handlers: { [key: string]: any } = {};
+    private elseHandler: ReducerHandler<TState, Action<any>> | null = null;
 
     constructor(private initState: TState) {
     }
@@ -46,12 +47,20 @@ export class ReducerBuilder<TState> {
         return this;
     }
 
+    public else = (handler: ReducerHandler<TState, Action<any>>) => {
+        this.elseHandler = handler;
+        return this;
+    }
+
     public build() {
         return (state: TState | undefined, action: Action<any>): TState => {
             let handler = this.handlers[action.type];
+            let elseHandler = this.elseHandler;
             let currentState = state || this.initState;
             if (handler) {
                 return handler(currentState, action);
+            } else if (elseHandler) {
+                return elseHandler(currentState, action)
             } else {
                 return currentState;
             }

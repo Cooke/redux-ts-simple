@@ -34,5 +34,6 @@ const reducer = new ReducerBuilder(initialState)
     .on(reset,      () => ({ counter: 0 }))
     .on(increment,  (state, action) => ({ counter: state.counter + action.payload }))
     .on(set,        (state, action) => ({ counter: state.counter + action.payload.value }))
+    .else(          (state, action) => state) // Extensibility point 
     .build();
 ```

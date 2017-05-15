@@ -47,3 +47,15 @@ it('should be able to reduce actions', () => {
     state = reducer(state, reset());
     expect(state.counter).toBe(0);
 })
+
+it('should be able to reduce action with else', () => {
+    let reset = createAction("ResetAction");
+    
+    const reducer = new ReducerBuilder({ counter: 1 })
+        .on(reset, () => ({ counter: 0 }))
+        .else((state, action) => action.type === 'other' ? { counter: action.payload } : state)
+        .build();
+
+    let state = reducer(undefined, { type: 'other', payload: 123 });
+    expect(state.counter).toBe(123);
+})

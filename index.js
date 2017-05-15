@@ -24,9 +24,14 @@ var ReducerBuilder = (function () {
         var _this = this;
         this.initState = initState;
         this.handlers = {};
+        this.elseHandler = null;
         this.on = function (actionDefinition, handler) {
             // TODO check if already registered
             _this.handlers[actionDefinition.type] = handler;
+            return _this;
+        };
+        this.else = function (handler) {
+            _this.elseHandler = handler;
             return _this;
         };
     }
@@ -34,9 +39,13 @@ var ReducerBuilder = (function () {
         var _this = this;
         return function (state, action) {
             var handler = _this.handlers[action.type];
+            var elseHandler = _this.elseHandler;
             var currentState = state || _this.initState;
             if (handler) {
                 return handler(currentState, action);
+            }
+            else if (elseHandler) {
+                return elseHandler(currentState, action);
             }
             else {
                 return currentState;
