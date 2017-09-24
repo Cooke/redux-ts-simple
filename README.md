@@ -1,6 +1,12 @@
 # redux-ts-simple
 Yet another lib for creating typed actions and reducers. This library is FSA-compliant.
 
+## Installing
+
+```bash
+npm install redux-ts-simple
+```
+
 ## Usage
 
 #### action.ts 
@@ -34,6 +40,8 @@ const reducer = new ReducerBuilder(initialState)
     .on(reset,      () => ({ counter: 0 }))
     .on(increment,  (state, action) => ({ counter: state.counter + action.payload }))
     .on(set,        (state, action) => ({ counter: state.counter + action.payload.value }))
+    .on(clear, wipe, (state) => ({ counter: 0}) // List several actions with same handler
     .else(          (state, action) => state) // Extensibility point 
+    .every((state, action) => ({ version: state.version + 1}) // Executed after every action and else handler with the new state as input
     .build();
 ```
