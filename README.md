@@ -34,14 +34,14 @@ console.log(fetchAction.meta.url); // /posts/1
 ```typescript
 import { ReducerBuilder } from "redux-ts-simple";
 
-const initialState = { counter: 0 };
+const initialState = { counter: 0, version: 0 };
 
 const reducer = new ReducerBuilder(initialState)
-    .on(reset,      () => ({ counter: 0 }))
-    .on(increment,  (state, action) => ({ counter: state.counter + action.payload }))
-    .on(set,        (state, action) => ({ counter: state.counter + action.payload.value }))
-    .on(clear, wipe, (state) => ({ counter: 0}) // List several actions with same handler
-    .else(          (state, action) => state) // Extensibility point 
-    .every((state, action) => ({ version: state.version + 1}) // Executed after every action and else handler with the new state as input
+    .on(reset,       () => ({ counter: 0 }))
+    .on(increment,   (state, action) => ({ counter: state.counter + action.payload }))
+    .on(set,         (state, action) => ({ counter: state.counter + action.payload.value }))
+    .on(clear, wipe, (state) => ({ counter: 0}) // Several actions with same handler
+    .else(           (state, action) => state) // Extensibility point 
+    .every(          (state, action) => ({ version: state.version + 1}) // Executed after every action and else handler with the new state as input
     .build();
 ```
