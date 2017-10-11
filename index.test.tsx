@@ -48,6 +48,21 @@ it('should be able to reduce actions', () => {
     expect(state.counter).toBe(0);
 })
 
+it('should be able to reduce several actions with same handler', () => {
+    let increment = createAction("Inc1");
+    let increase = createAction("Inc2");
+
+    const reducer = new ReducerBuilder({ counter: 0 })
+        .on(increment, increase, (state, action) => ({ counter: state.counter + 1 }))
+        .build();
+
+    let state = reducer(undefined, increment());
+    expect(state.counter).toBe(1);
+
+    state = reducer(state, increase());
+    expect(state.counter).toBe(2);
+})
+
 it('should be able to reduce action with else', () => {
     let reset = createAction("ResetAction");
     
@@ -58,4 +73,16 @@ it('should be able to reduce action with else', () => {
 
     let state = reducer(undefined, { type: 'other', payload: 123 });
     expect(state.counter).toBe(123);
+})
+
+it('should be able to reduce action with every', () => {
+    let reset = createAction("ResetAction");
+    
+    const reducer = new ReducerBuilder({ counter: 1 })
+        .on(reset, () => ({ counter: 0 }))
+        .every((state, action) => ({ counter: state.counter + 1}))
+        .build();
+
+    let state = reducer(undefined, reset());
+    expect(state.counter).toBe(1);
 })

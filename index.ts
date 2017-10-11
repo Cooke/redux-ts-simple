@@ -1,77 +1,118 @@
 export interface ActionDefinition<TPayload> {
-    type: string;
-    (payload?: TPayload, meta?: ActionMeta): Action<TPayload>;
+  type: string;
+  (payload?: TPayload, meta?: ActionMeta): Action<TPayload>;
 }
 
-export interface ActionMeta {
-}
+export interface ActionMeta {}
 
 export interface Action<TPayload> {
-    type: string;
-    payload: TPayload;
-    error?: boolean;
-    meta?: ActionMeta;
+  type: string;
+  payload: TPayload;
+  error?: boolean;
+  meta?: ActionMeta;
 }
 
 export function createAction<TPayload>(type: string): ActionDefinition<TPayload> {
-    const actionCreator: any = (payload: TPayload, meta: ActionMeta): Action<TPayload> => ({
-        type: type,
-        payload: payload,
-        meta: meta,
-        error: payload instanceof Error
-    });
-    actionCreator.type = type;
-    return actionCreator;
+  const actionCreator: any = (payload: TPayload, meta: ActionMeta): Action<TPayload> => ({
+    type: type,
+    payload: payload,
+    meta: meta,
+    error: payload instanceof Error
+  });
+  actionCreator.type = type;
+  return actionCreator;
 }
 
 interface ReducerHandler<TState, TAction> {
-    (state: TState, action: TAction): TState;
+  (state: TState, action: TAction): TState;
 }
 
 interface RegisterReducerHandler<TState> {
-    <TPayload>(
-        actionClass: ActionDefinition<TPayload>,
-        handler: ReducerHandler<TState, Action<TPayload>>): ReducerBuilder<TState>;
+  <TPayload>(
+    actionClass: ActionDefinition<TPayload>,
+    handler: ReducerHandler<TState, Action<TPayload>>
+  ): ReducerBuilder<TState>;
+  <TPayload>(
+    actionClass1: ActionDefinition<TPayload>,
+    actionClass2: ActionDefinition<TPayload>,
+    handler: ReducerHandler<TState, Action<TPayload>>
+  ): ReducerBuilder<TState>;
 }
 
 export class ReducerBuilder<TState> {
-    private handlers: { [key: string]: any } = {};
-    private elseHandler: ReducerHandler<TState, Action<any>> | null = null;
+  private handlers: { [key: string]: any } = {};
+  private elseHandler: ReducerHandler<TState, Action<any>> | null = null;
+  private everyHandler: ReducerHandler<TState, Action<any>> | null = null;
 
-    constructor(private initState: TState) {
+  constructor(private initState: TState) {}
+
+  public on<TPayload>(
+    actionClass: ActionDefinition<TPayload>,
+    handler: ReducerHandler<TState, Action<TPayload>>
+  ): ReducerBuilder<TState>;
+  public on<TPayload1, TPayload2>(
+    actionClass1: ActionDefinition<TPayload1>,
+    actionClass2: ActionDefinition<TPayload2>,
+    handler: ReducerHandler<TState, Action<TPayload1 | TPayload2>>
+  ): ReducerBuilder<TState>;
+  public on<TPayload1, TPayload2, TPayload3>(
+    actionClass1: ActionDefinition<TPayload1>,
+    actionClass2: ActionDefinition<TPayload2>,
+    actionClass3: ActionDefinition<TPayload3>,
+    handler: ReducerHandler<TState, Action<TPayload1 | TPayload2 | TPayload3>>
+  ): ReducerBuilder<TState>;
+  public on(...args: any[]): ReducerBuilder<TState> {
+    for (let i = 0; i < args.length - 1; i++) {
+      this.registerActionHandler(args[i], args[args.length - 1]);
     }
 
-    public on: RegisterReducerHandler<TState> = (actionDefinition: any, handler: any) => {
-        // TODO check if already registered
-        this.handlers[actionDefinition.type] = handler;
-        return this;
+    return this;
+  }
+
+  public every = (handler: ReducerHandler<TState, Action<any>>) => {
+    this.everyHandler = handler;
+    return this;
+  };
+
+  public else = (handler: ReducerHandler<TState, Action<any>>) => {
+    this.elseHandler = handler;
+    return this;
+  };
+
+  public build(): (state: TState | null | undefined, action: any) => TState {
+    return (state: TState | undefined, action: Action<any>): TState => {
+      let handler: any = this.handlers[action.type];
+      let elseHandler: any = this.elseHandler;
+      let currentState: any = state || this.initState;
+      if (handler) {
+        currentState = handler(currentState, action);
+      } else if (elseHandler) {
+        currentState = elseHandler(currentState, action);
+      }
+
+      if (this.everyHandler) {
+        currentState = this.everyHandler(currentState, action);
+      }
+
+      return currentState;
+    };
+  }
+
+  private registerActionHandler = (actionDefinition: any, handler: any) => {
+    if (this.handlers[actionDefinition.type]) {
+      throw new Error(`An action handler has already been registered for the action '${actionDefinition.type}'.`);
     }
 
-    public else = (handler: ReducerHandler<TState, Action<any>>) => {
-        this.elseHandler = handler;
-        return this;
-    }
-
-    public build() {
-        return (state: TState | undefined, action: Action<any>): TState => {
-            let handler = this.handlers[action.type];
-            let elseHandler = this.elseHandler;
-            let currentState = state || this.initState;
-            if (handler) {
-                return handler(currentState, action);
-            } else if (elseHandler) {
-                return elseHandler(currentState, action)
-            } else {
-                return currentState;
-            }
-        }
-    }
+    this.handlers[actionDefinition.type] = handler;
+    return this;
+  };
 }
 
+// The purpose with the merge functions is to enable more type safe spread operations
 export function merge<T>(existing: T, updates: Partial<T>): T {
-    return { ...<any>existing, ...<any>updates };
-};
+  return { ...(<any>existing), ...(<any>updates) };
+}
 
 export function mergeInto<T>(existing: { [key: string]: T }, key: string, updates: Partial<T>): { [key: string]: T } {
-    return { ...<any>existing, [key]: merge(existing[key], updates) };
-};
+  return { ...(<any>existing), [key]: merge(existing[key], updates) };
+}
