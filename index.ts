@@ -79,7 +79,7 @@ export class ReducerBuilder<TState> {
     return this;
   };
 
-  public build(): (state: TState | null | undefined, action: any) => TState {
+  public build(): (state: TState | undefined, action: any) => TState {
     return (state: TState | undefined, action: Action<any>): TState => {
       let handler: any = this.handlers[action.type];
       let elseHandler: any = this.elseHandler;
