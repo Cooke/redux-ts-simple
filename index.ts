@@ -69,12 +69,12 @@ export class ReducerBuilder<TState> {
     return this;
   }
 
-  public every = (handler: ReducerHandler<TState, Action<any>>) => {
+  public every = (handler: ReducerHandler<TState, Action<any>>): this => {
     this.everyHandler = handler;
     return this;
   };
 
-  public else = (handler: ReducerHandler<TState, Action<any>>) => {
+  public else = (handler: ReducerHandler<TState, Action<any>>): this => {
     this.elseHandler = handler;
     return this;
   };
