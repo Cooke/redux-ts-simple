@@ -49,19 +49,19 @@ export class ReducerBuilder<TState> {
   public on<TPayload>(
     actionClass: ActionDefinition<TPayload>,
     handler: ReducerHandler<TState, Action<TPayload>>
-  ): ReducerBuilder<TState>;
+  ): this;
   public on<TPayload1, TPayload2>(
     actionClass1: ActionDefinition<TPayload1>,
     actionClass2: ActionDefinition<TPayload2>,
     handler: ReducerHandler<TState, Action<TPayload1 | TPayload2>>
-  ): ReducerBuilder<TState>;
+  ): this;
   public on<TPayload1, TPayload2, TPayload3>(
     actionClass1: ActionDefinition<TPayload1>,
     actionClass2: ActionDefinition<TPayload2>,
     actionClass3: ActionDefinition<TPayload3>,
     handler: ReducerHandler<TState, Action<TPayload1 | TPayload2 | TPayload3>>
-  ): ReducerBuilder<TState>;
-  public on(...args: any[]): ReducerBuilder<TState> {
+  ): this;
+  public on(...args: any[]): this {
     for (let i = 0; i < args.length - 1; i++) {
       this.registerActionHandler(args[i], args[args.length - 1]);
     }
