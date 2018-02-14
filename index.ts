@@ -27,18 +27,6 @@ interface ReducerHandler<TState, TAction> {
   (state: TState, action: TAction): TState;
 }
 
-interface RegisterReducerHandler<TState> {
-  <TPayload>(
-    actionClass: ActionDefinition<TPayload>,
-    handler: ReducerHandler<TState, Action<TPayload>>
-  ): ReducerBuilder<TState>;
-  <TPayload>(
-    actionClass1: ActionDefinition<TPayload>,
-    actionClass2: ActionDefinition<TPayload>,
-    handler: ReducerHandler<TState, Action<TPayload>>
-  ): ReducerBuilder<TState>;
-}
-
 export class ReducerBuilder<TState> {
   private handlers: { [key: string]: any } = {};
   private elseHandler: ReducerHandler<TState, Action<any>> | null = null;
