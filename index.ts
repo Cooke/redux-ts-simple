@@ -27,18 +27,6 @@ interface ReducerHandler<TState, TAction> {
   (state: TState, action: TAction): TState;
 }
 
-interface RegisterReducerHandler<TState> {
-  <TPayload>(
-    actionClass: ActionDefinition<TPayload>,
-    handler: ReducerHandler<TState, Action<TPayload>>
-  ): ReducerBuilder<TState>;
-  <TPayload>(
-    actionClass1: ActionDefinition<TPayload>,
-    actionClass2: ActionDefinition<TPayload>,
-    handler: ReducerHandler<TState, Action<TPayload>>
-  ): ReducerBuilder<TState>;
-}
-
 export class ReducerBuilder<TState> {
   private handlers: { [key: string]: any } = {};
   private elseHandler: ReducerHandler<TState, Action<any>> | null = null;
@@ -72,12 +60,12 @@ export class ReducerBuilder<TState> {
   public every = (handler: ReducerHandler<TState, Action<any>>): this => {
     this.everyHandler = handler;
     return this;
-  };
+  }
 
   public else = (handler: ReducerHandler<TState, Action<any>>): this => {
     this.elseHandler = handler;
     return this;
-  };
+  }
 
   public build(): (state: TState | undefined, action: any) => TState {
     return (state: TState | undefined, action: Action<any>): TState => {
@@ -105,14 +93,14 @@ export class ReducerBuilder<TState> {
 
     this.handlers[actionDefinition.type] = handler;
     return this;
-  };
+  }
 }
 
 // The purpose with the merge functions is to enable more type safe spread operations
 export function merge<T>(existing: T, updates: Partial<T>): T {
-  return { ...(<any>existing), ...(<any>updates) };
+  return { ...(<any> existing), ...(<any> updates) };
 }
 
 export function mergeInto<T>(existing: { [key: string]: T }, key: string, updates: Partial<T>): { [key: string]: T } {
-  return { ...(<any>existing), [key]: merge(existing[key], updates) };
+  return { ...(<any> existing), [key]: merge(existing[key], updates) };
 }
