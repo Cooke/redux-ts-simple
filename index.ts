@@ -23,7 +23,7 @@ export function createAction<TPayload>(type: string): ActionDefinition<TPayload>
   return actionCreator;
 }
 
-interface ReducerHandler<TState, TAction> {
+export interface ReducerHandler<TState, TAction> {
   (state: TState, action: TAction): TState;
 }
 
