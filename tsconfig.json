@@ -13,8 +13,7 @@
     "allowSyntheticDefaultImports": false,
     "declaration": true
   },
-  "exclude": [
-    "node_modules",
-    "public"
+  "include": [
+    "src/**/*.ts?"
   ]
 }

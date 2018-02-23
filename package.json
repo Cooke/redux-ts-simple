@@ -26,7 +26,8 @@
   "homepage": "https://github.com/Cooke/redux-ts-simple#readme",
   "devDependencies": {
     "@types/jest": "^19.2.2",
-    "jest": "^19.0.2"
+    "jest": "^19.0.2",
+    "typescript": "^2.7.2"
   },
   "dependencies": {}
 }
