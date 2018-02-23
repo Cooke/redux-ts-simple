@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "dist",
     "noImplicitAny": true,
     "noEmitOnError": true,
     "removeComments": false,
@@ -9,7 +10,8 @@
     "moduleResolution": "node",
     "strictNullChecks": true,
     "pretty": true,
-    "allowSyntheticDefaultImports": false
+    "allowSyntheticDefaultImports": false,
+    "declaration": true
   },
   "exclude": [
     "node_modules",
