@@ -1,6 +1,6 @@
 {
   "name": "redux-ts-simple",
-  "version": "3.1.3",
+  "version": "3.1.4",
   "description": "Yet another lib for creating typed actions and reducers.",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
