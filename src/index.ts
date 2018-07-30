@@ -1,6 +1,7 @@
 export interface ActionDefinition<TPayload> {
   type: string;
   (payload?: TPayload, meta?: ActionMeta): Action<TPayload>;
+  is(action: any): action is Action<TPayload>;
 }
 
 export interface ActionMeta {}
@@ -12,14 +13,20 @@ export interface Action<TPayload> {
   meta?: ActionMeta;
 }
 
-export function createAction<TPayload>(type: string): ActionDefinition<TPayload> {
-  const actionCreator: any = (payload: TPayload, meta: ActionMeta): Action<TPayload> => ({
+export function createAction<TPayload>(
+  type: string
+): ActionDefinition<TPayload> {
+  const actionCreator: any = (
+    payload: TPayload,
+    meta: ActionMeta
+  ): Action<TPayload> => ({
     type: type,
     payload: payload,
     meta: meta,
     error: payload instanceof Error
   });
   actionCreator.type = type;
+  actionCreator.is = (action: any) => action.type === type;
   return actionCreator;
 }
 
@@ -60,12 +67,12 @@ export class ReducerBuilder<TState> {
   public every = (handler: ReducerHandler<TState, Action<any>>): this => {
     this.everyHandler = handler;
     return this;
-  }
+  };
 
   public else = (handler: ReducerHandler<TState, Action<any>>): this => {
     this.elseHandler = handler;
     return this;
-  }
+  };
 
   public build(): (state: TState | undefined, action: any) => TState {
     return (state: TState | undefined, action: Action<any>): TState => {
@@ -88,19 +95,27 @@ export class ReducerBuilder<TState> {
 
   private registerActionHandler = (actionDefinition: any, handler: any) => {
     if (this.handlers[actionDefinition.type]) {
-      throw new Error(`An action handler has already been registered for the action '${actionDefinition.type}'.`);
+      throw new Error(
+        `An action handler has already been registered for the action '${
+          actionDefinition.type
+        }'.`
+      );
     }
 
     this.handlers[actionDefinition.type] = handler;
     return this;
-  }
+  };
 }
 
 // The purpose with the merge functions is to enable more type safe spread operations
 export function merge<T>(existing: T, updates: Partial<T>): T {
-  return { ...(<any> existing), ...(<any> updates) };
+  return { ...(<any>existing), ...(<any>updates) };
 }
 
-export function mergeInto<T>(existing: { [key: string]: T }, key: string, updates: Partial<T>): { [key: string]: T } {
-  return { ...(<any> existing), [key]: merge(existing[key], updates) };
+export function mergeInto<T>(
+  existing: { [key: string]: T },
+  key: string,
+  updates: Partial<T>
+): { [key: string]: T } {
+  return { ...(<any>existing), [key]: merge(existing[key], updates) };
 }

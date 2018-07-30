@@ -3,3 +3,4 @@ index.js
 index.test.js
 *.map
 dist
+yarn-error.log
