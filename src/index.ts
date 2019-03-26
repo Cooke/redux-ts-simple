@@ -12,7 +12,7 @@ export interface Action<TPayload> {
   meta?: ActionMeta;
 }
 
-export function createAction<TPayload>(type: string): ActionDefinition<TPayload> {
+export function createAction<TPayload = undefined>(type: string): ActionDefinition<TPayload> {
   const actionCreator: any = (payload: TPayload, meta: ActionMeta): Action<TPayload> => ({
     type: type,
     payload: payload,
